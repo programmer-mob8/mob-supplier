@@ -3,7 +3,7 @@ package com.project.learningkitsupplier.ui.screen.detailsupplier.view
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import com.project.learningkitsupplier.navigation.NavigationRoute
-import com.project.libs.data.model.SupplierDetailEntity
+import com.project.learningkitsupplier.ui.screen.detailsupplier.uistate.SupplierDetailUiState
 import com.tagsamurai.tscomponents.R
 import com.tagsamurai.tscomponents.bottomsheet.BottomSheet
 import com.tagsamurai.tscomponents.button.ActionButton
@@ -12,7 +12,7 @@ import com.tagsamurai.tscomponents.theme.theme
 @Composable
 fun SupplierDetailActionSheet(
     navController: NavController,
-    item: SupplierDetailEntity,
+    uiState: SupplierDetailUiState,
     onDismissRequest: (Boolean) -> Unit,
     showSheet: Boolean,
     onDelete: () -> Unit
@@ -22,7 +22,7 @@ fun SupplierDetailActionSheet(
         isShowSheet = showSheet,
         content = {
             ActionButton(
-                onClickAction = { navController.navigate(NavigationRoute.EditSupplierScreen.navigate(supplierId = item.id)) },
+                onClickAction = { navController.navigate(NavigationRoute.EditSupplierScreen.navigate(supplierId = uiState.supplierId)) },
                 title = "Edit",
                 icon = R.drawable.ic_edit_2_line_24dp,
                 iconTint = theme.success

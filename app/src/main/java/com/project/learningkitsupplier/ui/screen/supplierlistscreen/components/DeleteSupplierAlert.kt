@@ -1,7 +1,6 @@
 package com.project.learningkitsupplier.ui.screen.supplierlistscreen.components
 
 import androidx.compose.runtime.Composable
-import com.project.learningkitsupplier.module.supplierlist.SupplierListCallback
 import com.project.libs.data.model.SupplierEntity
 import com.tagsamurai.tscomponents.alertdialog.AlertDialog
 import com.tagsamurai.tscomponents.model.Severity
@@ -13,7 +12,7 @@ fun DeleteSupplierAlert(
     onDismissRequest: (Boolean) -> Unit,
     supplier: List<SupplierEntity>,
     showDialog: Boolean,
-    supplierListCallback: SupplierListCallback
+    onConfirm: () -> Unit
 ) {
     val isSingle = supplier.size == 1
     val rawMessage = if(isSingle){
@@ -30,7 +29,7 @@ fun DeleteSupplierAlert(
             onButtonCancel = { onDismissRequest(false) },
             onButtonConfirm = {
                 onDismissRequest(false)
-                supplierListCallback.deleteSupplier(supplier.map { it.id })
+                onConfirm()
             },
             icon = com.tagsamurai.tscomponents.R.drawable.ic_delete_bin_6_line_24dp,
             iconColor = theme.danger,

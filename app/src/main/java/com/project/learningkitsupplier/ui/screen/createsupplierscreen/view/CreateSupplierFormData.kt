@@ -32,6 +32,7 @@ fun CreateSupplierFormData(
     supplierCallback: CreateSupplierCallback
 ){
 
+    Log.d("TAG", "CreateSupplierFormData: ${uiState.formData}")
 
     Scaffold {
         Column(
@@ -50,6 +51,7 @@ fun CreateSupplierFormData(
                 },
                 placeholder = "Enter company name",
                 maxLines = 1,
+                maxChar = 30,
                 isError = uiState.formError.companyName != null,
                 title = "Company name",
                 required = true,
@@ -142,12 +144,11 @@ fun CreateSupplierFormData(
                     }
                 },
                 placeholder = "Enter ZIP code",
-                isError = uiState.formError.zipCode != null,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
                 ),
                 title = "ZIP Code",
-                textError = uiState.formError.zipCode
+                maxChar = 15,
             )
 
             10.heightBox()
@@ -160,9 +161,9 @@ fun CreateSupplierFormData(
                     )
                 },
                 placeholder = "Enter company address",
-                isError = uiState.formError.companyLocation != null,
+                maxLines = 3,
                 title = "Company address",
-                textError = uiState.formError.companyLocation
+                maxChar = 120,
             )
 
             10.heightBox()
@@ -191,7 +192,7 @@ fun CreateSupplierFormData(
                 },
                 title = "Company Phone Number",
                 isError = uiState.formError.companyPhoneNumber != null,
-                textError = uiState.formError.companyPhoneNumber
+                textError = uiState.formError.companyPhoneNumber,
             )
 
             10.heightBox()
@@ -205,8 +206,7 @@ fun CreateSupplierFormData(
                 },
                 placeholder = "Enter PIC name",
                 title = "PIC Name",
-                isError = uiState.formError.picName != null,
-                textError = uiState.formError.picName
+                maxChar = 30
             )
 
             10.heightBox()

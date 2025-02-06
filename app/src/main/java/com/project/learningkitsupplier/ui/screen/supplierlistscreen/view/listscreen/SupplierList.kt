@@ -147,7 +147,11 @@ fun SupplierList(
             onDismissRequest = { showDeleteDialog = it },
             supplier = listOf(item),
             showDialog = showDeleteDialog,
-            supplierListCallback = supplierListCallback,
+            onConfirm = {
+                supplierListCallback.deleteSupplier(listOf(item.id))
+                supplierListCallback.onClearSelectedItem()
+                showDeleteDialog = false
+            }
         )
     }
 }

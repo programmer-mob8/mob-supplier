@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
 import com.project.learningkitsupplier.module.changelog.ChangelogListCallback
 import com.project.learningkitsupplier.ui.screen.changelog.components.DownloadDialog
 import com.project.learningkitsupplier.ui.screen.changelog.uistate.ChangelogUiState
-import com.project.learningkitsupplier.ui.screen.supplierlistscreen.components.DownloadSupplierDialogs
+import com.project.learningkitsupplier.ui.screen.changelog.viewmodel.ChangelogViewModel
 import com.tagsamurai.tscomponents.model.Menu
 import com.tagsamurai.tscomponents.pagetitle.PageTitle
 import com.tagsamurai.tscomponents.textfield.SearchFieldTopAppBar
@@ -19,7 +19,8 @@ import com.tagsamurai.tscomponents.topappbar.TopAppBar
 fun ChangelogTopBar(
     uiState: ChangelogUiState,
     changelogListCallback: ChangelogListCallback,
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
+    viewModel: ChangelogViewModel
 ) {
 
     var showSearch by remember { mutableStateOf(false) }
@@ -54,8 +55,9 @@ fun ChangelogTopBar(
     }
 
     DownloadDialog(
-        onDismissRequest = { state -> showDialog = state},
-        showDialog = showDialog
+        onDismissRequest = { state -> showDialog = state },
+        showDialog = showDialog,
+        viewModel = viewModel,
     )
 
     ChangeLogFilterSheet(

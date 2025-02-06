@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -19,6 +18,7 @@ import com.project.learningkitsupplier.ui.screen.supplierlistscreen.view.listscr
 import com.project.learningkitsupplier.ui.screen.supplierlistscreen.viewmodel.SupplierListViewModel
 import com.tagsamurai.tscomponents.R
 import com.tagsamurai.tscomponents.button.CustomFloatingIconButton
+import com.tagsamurai.tscomponents.handlestate.HandleDownloadState
 import com.tagsamurai.tscomponents.handlestate.HandleState
 import com.tagsamurai.tscomponents.scaffold.Scaffold
 import com.tagsamurai.tscomponents.snackbar.OnShowSnackBar
@@ -45,6 +45,7 @@ fun SupplierListScreen(
         supplierListCallback = supplierListCallback,
         selectedTabIndex = selectedTabIndex,
         onTabSelected = {index -> selectedTabIndex = index},
+        viewModel = supplierListViewModel,
         navController = navController,
         onShowSnackBar = onShowSnackBar
     )
@@ -58,14 +59,12 @@ fun SupplierListScreen(
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit,
     onShowSnackBar: OnShowSnackBar,
+    viewModel: SupplierListViewModel,
     navController: NavController
 ){
 
     val statusSuccessMessage: String
     val statusErrorMessage: String
-
-    val successMessage = "Success, supplier has been delete"
-    val errorMessage = "Error, failed to delete supplier. Please check your internet connection and try again"
 
     if (uiState.isActive) {
         statusSuccessMessage = "Success, supplier has been activated"
@@ -79,8 +78,8 @@ fun SupplierListScreen(
     HandleState(
         state = uiState.deleteState,
         onShowSnackBar = onShowSnackBar,
-        successMsg = successMessage,
-        errorMsg = errorMessage,
+        successMsg = "Success, supplier has been delete",
+        errorMsg = "Error, failed to delete supplier. Please check your internet connection and try again",
         onDispose = supplierListCallback.onResetMessageState
     )
 
@@ -92,9 +91,15 @@ fun SupplierListScreen(
         onDispose = supplierListCallback.onResetMessageState
     )
 
+    HandleDownloadState(
+        state = uiState.downloadState,
+        onShowSnackBar = onShowSnackBar,
+        onDispose = supplierListCallback.onResetMessageState
+    )
+
     Scaffold(
         topBar = {
-            SupplierListTopBar(uiState, supplierListCallback, selectedTabIndex, onTabSelected, navController)
+            SupplierListTopBar(uiState, supplierListCallback, selectedTabIndex, onTabSelected, navController, viewModel )
         },
 
         floatingActionButton = {

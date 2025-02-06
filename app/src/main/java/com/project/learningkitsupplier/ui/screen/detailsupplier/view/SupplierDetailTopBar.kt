@@ -10,7 +10,6 @@ import androidx.navigation.NavController
 import com.project.learningkitsupplier.module.supplierdetail.SupplierDetailCallback
 import com.project.learningkitsupplier.ui.screen.detailsupplier.component.DeleteDialogSupplierDetail
 import com.project.learningkitsupplier.ui.screen.detailsupplier.uistate.SupplierDetailUiState
-import com.project.libs.data.model.SupplierDetailEntity
 import com.tagsamurai.tscomponents.model.Menu
 import com.tagsamurai.tscomponents.pagetitle.PageTitle
 import com.tagsamurai.tscomponents.textfield.SearchFieldTopAppBar
@@ -54,11 +53,9 @@ fun SupplierDetailTopBar(
         PageTitle("Supplier Detail")
     }
 
-    val item: SupplierDetailEntity = uiState.supplierDetailEntity
-
     SupplierDetailActionSheet(
         navController = navController,
-        item = item,
+        uiState = uiState,
         onDismissRequest = {state -> showActionSheet = state},
         showSheet = showActionSheet,
         onDelete = { showDeleteDialog = true}

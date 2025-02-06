@@ -12,10 +12,13 @@ import com.project.learningkitsupplier.module.changelog.ChangelogListCallback
 import com.project.learningkitsupplier.ui.screen.changelog.uistate.ChangelogUiState
 import com.project.learningkitsupplier.ui.screen.changelog.view.changeloglist.LoadChangelogList
 import com.project.learningkitsupplier.ui.screen.changelog.viewmodel.ChangelogViewModel
+import com.tagsamurai.tscomponents.handlestate.HandleDownloadState
+import com.tagsamurai.tscomponents.snackbar.OnShowSnackBar
 
 @Composable
 fun ChangelogListScreen(
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
+    onShowSnackBar: OnShowSnackBar
 ) {
     val changelogListViewModel: ChangelogViewModel = hiltViewModel()
     val uiState = changelogListViewModel.uiState.collectAsStateWithLifecycle()
@@ -28,7 +31,9 @@ fun ChangelogListScreen(
     ChangelogListScreen(
         uiState = uiState.value,
         changelogListCallback = changelogListCallback,
-        onNavigateUp = onNavigateUp
+        onNavigateUp = onNavigateUp,
+        viewModel = changelogListViewModel,
+        onShowSnackBar = onShowSnackBar
     )
 }
 
@@ -36,15 +41,24 @@ fun ChangelogListScreen(
 fun ChangelogListScreen(
     uiState: ChangelogUiState,
     changelogListCallback: ChangelogListCallback,
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
+    viewModel: ChangelogViewModel,
+    onShowSnackBar: OnShowSnackBar
 ){
+
+    HandleDownloadState(
+        state = uiState.downloadState,
+        onShowSnackBar = onShowSnackBar,
+        onDispose = changelogListCallback.onResetMessageState
+    )
 
     Scaffold(
         topBar = {
             ChangelogTopBar(
                 uiState = uiState,
                 changelogListCallback = changelogListCallback,
-                onNavigateUp = onNavigateUp
+                onNavigateUp = onNavigateUp,
+                viewModel = viewModel,
             )
         }
     ) { paddingValues ->

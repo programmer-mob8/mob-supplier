@@ -40,9 +40,3 @@ fun LoadingUiChangelog() {
         }
     }
 }
-
-@Preview
-@Composable
-fun Preview3(){
-    LoadingUiChangelog()
-}

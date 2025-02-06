@@ -67,16 +67,17 @@ fun NavigationHost(
 
             composable(route = NavigationRoute.ChangelogListScreen.route) {
                 ChangelogListScreen(
-                    onNavigateUp = { navController.navigateUp()}
+                    onNavigateUp = { navController.navigateUp() },
+                    onShowSnackBar = ::showSnackBar
                 )
+
+
             }
             
             composable(route = NavigationRoute.CreateSupplierScreen.route) {
                 CreateSupplierScreen(
                     onNavigateUp = { navController.navigateUp()},
-                    onShowSnackBar = { message, isSuccess ->
-                        showSnackBar(message, isSuccess)
-                    }
+                    onShowSnackBar = ::showSnackBar
                 )
             }
 
@@ -90,9 +91,7 @@ fun NavigationHost(
             ) {
                 SupplierDetailScreen(
                     navController = navController,
-                    onShowSnackBar = { message, isSuccess ->
-                        showSnackBar(message, isSuccess)
-                    },
+                    onShowSnackBar = ::showSnackBar,
                     onNavigateUp = { navController.navigateUp() }
                 )
             }
@@ -107,9 +106,7 @@ fun NavigationHost(
             ) {
                 CreateSupplierScreen(
                     onNavigateUp = { navController.navigateUp() },
-                    onShowSnackBar = {message, isSuccess ->
-                        showSnackBar(message, isSuccess)
-                    },
+                    onShowSnackBar = ::showSnackBar
                 )
             }
         }

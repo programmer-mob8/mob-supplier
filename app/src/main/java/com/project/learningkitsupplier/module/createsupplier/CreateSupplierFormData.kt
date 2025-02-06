@@ -2,7 +2,7 @@ package com.project.learningkitsupplier.module.createsupplier
 
 data class CreateSupplierFormData(
     val companyName: String = "",
-    val items: List<Item> = emptyList(),
+    val items: List<Item> = listOf(Item(id = "1")),
     val country: String? = null,
     val state: String? = null,
     val city: String? = null,
@@ -16,9 +16,10 @@ data class CreateSupplierFormData(
     ) {
 
     data class Item(
-        val id: String = "",
+        val id: String = "1",
         val supplierId: String = "",
         val itemName: String = "",
-        val sku: List<String> = emptyList()
+        val sku: List<String> = emptyList(),
+        val isSkuEnabled: Boolean = false
     )
 }

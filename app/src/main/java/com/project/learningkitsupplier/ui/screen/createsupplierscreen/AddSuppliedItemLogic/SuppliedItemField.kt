@@ -4,11 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.project.learningkitsupplier.module.createsupplier.CreateSupplierCallback
 import com.project.learningkitsupplier.module.createsupplier.CreateSupplierFormData
 import com.project.learningkitsupplier.ui.screen.createsupplierscreen.uistate.CreateSupplierUiState
@@ -36,7 +38,7 @@ fun SuppliedItemBaseField(
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.Top
     ) {
         Column(
             modifier = Modifier.weight(1f)
@@ -54,7 +56,7 @@ fun SuppliedItemBaseField(
                 value = itemName,
                 title = "Item name",
                 required = true,
-                isError = uiState.formError.itemName != null,
+                isError = (uiState.formError.itemName != null ) && itemName.isBlank(),
                 textError = uiState.formError.itemName
             )
         }
@@ -75,11 +77,11 @@ fun SuppliedItemBaseField(
                 },
                 items = uiState.formOption.sku,
                 value = sku,
-                enabled = uiState.formData.items.any { it.itemName.isNotEmpty() },
+                enabled = item.itemName.isNotBlank(),
                 placeHolder = "Select SKU",
                 title = "SKU",
                 required = true,
-                isError = uiState.formError.sku != null,
+                isError = (uiState.formError.sku != null) && sku.isEmpty(),
                 textError = uiState.formError.sku,
                 isUseChip = true,
             )
@@ -88,6 +90,7 @@ fun SuppliedItemBaseField(
         if (isRemovable) {
             10.widthBox()
             Button(
+                modifier = Modifier.padding(top = 22.dp),
                 onClick = onRemove,
                 type = TypeButton.OUTLINED,
                 severity = Severity.DANGER,

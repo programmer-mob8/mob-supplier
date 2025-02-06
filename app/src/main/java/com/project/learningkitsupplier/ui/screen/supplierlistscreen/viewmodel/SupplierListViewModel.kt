@@ -15,6 +15,8 @@ import com.project.libs.domain.supplier.EditSupplierStatusUseCase
 import com.project.libs.domain.supplier.GetFilterListOptionUseCase
 import com.project.libs.domain.supplier.SupplierUseCase
 import com.tagsamurai.tscomponents.button.OptionData
+import com.tagsamurai.tscomponents.utils.ExportUtil
+import com.tagsamurai.tscomponents.utils.Utils.toDateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +32,8 @@ class SupplierListViewModel @Inject constructor(
     private val supplierUseCase: SupplierUseCase,
     private val getFilterListOptionUseCase: GetFilterListOptionUseCase,
     private val editSupplierStatusUseCase: EditSupplierStatusUseCase,
-    private val deleteSupplierUseCase: DeleteSupplierUseCase
+    private val deleteSupplierUseCase: DeleteSupplierUseCase,
+    private val exportUtil: ExportUtil,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SupplierListUiState())
     val uiState = _uiState.asStateFlow()
@@ -229,7 +232,91 @@ class SupplierListViewModel @Inject constructor(
     private fun resetMessageState() {
         _uiState.value = _uiState.value.copy(
             deleteState = null,
-            statusState = null
+            statusState = null,
+            downloadState = null,
         )
+    }
+
+    private suspend fun parseDownloadContent(
+        data: List<SupplierEntity>
+    ): List<Map<String, String>> {
+        return data.map { d ->
+            with(d) {
+                val date = updatedAt.toDateFormatter()
+
+                mapOf(
+                    "status" to status.toString(),
+                    "companyName" to companyName,
+                    "state" to state,
+                    "country" to country,
+                    "sku" to item.map { it.sku }.joinToString(", "),
+                    "updatedAt" to date,
+                    "picName" to picName
+                )
+            }
+        }
+    }
+
+    fun downloadList(fileName: String){
+        _uiState.update {
+            it.copy(
+                isLoadingOverlay = true,
+                downloadState = null
+            )
+        }
+
+        supplierUseCase(_uiState.value.queryParams).onEach { result ->
+            when (result) {
+                is Result.Success -> {
+                    viewModelScope.launch {
+                        val downloadContent = parseDownloadContent(result.data)
+
+                        exportUtil.exportToExcel(
+                            fileName, downloadContent
+                        )
+
+                        _uiState.update {
+                            it.copy(
+                                isLoadingOverlay = false,
+                                downloadState = true
+                            )
+                        }
+                    }
+                }
+
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoadingOverlay = false,
+                            downloadState = false
+                        )
+                    }
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun showSearch(showSearch: Boolean) {
+        _uiState.value = _uiState.value.copy(showSearch = showSearch)
+    }
+
+    fun showActionSheet(showAction: Boolean) {
+        _uiState.value = _uiState.value.copy(showActionSheet = showAction)
+    }
+
+    fun showDeleteDialog(showDelete: Boolean){
+        _uiState.value = _uiState.value.copy(showDeleteDialog = showDelete)
+    }
+
+    fun showDownloadDialog(showDownload: Boolean){
+        _uiState.value = _uiState.value.copy(showDownloadDialog = showDownload)
+    }
+
+    fun showUpdateStatus(showUpdate: Boolean){
+        _uiState.value = _uiState.value.copy(showUpdateStatus = showUpdate)
+    }
+
+    fun showFilter(showFilter: Boolean){
+        _uiState.value = _uiState.value.copy(showFilter = showFilter)
     }
 }

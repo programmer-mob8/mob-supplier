@@ -10,6 +10,7 @@ data class CreateSupplierUiState(
     val isStayOnForm: Boolean = false,
     val supplierId: String = "",
     val isEditForm: Boolean = false,
+    val clearField: () -> Unit = {},
     val formData: CreateSupplierFormData = CreateSupplierFormData(items = listOf(
         CreateSupplierFormData.Item(id = "1")
     )),

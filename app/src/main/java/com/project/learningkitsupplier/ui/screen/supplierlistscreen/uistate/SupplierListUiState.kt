@@ -11,6 +11,12 @@ data class SupplierListUiState(
     val isLoadingOverlay: Boolean = false,
     val isLoadingGroup: Boolean = false,
     val isAllSelected: Boolean = false,
+    val showSearch: Boolean = false,
+    val showActionSheet: Boolean = false,
+    val showDeleteDialog: Boolean = false,
+    val showDownloadDialog: Boolean = false,
+    val showUpdateStatus: Boolean = false,
+    val showFilter: Boolean = false,
     val itemSelected: List<SupplierEntity> = emptyList(),
     val searchQuery: String = "",
     val filterOption: SupplierListFilterOption = SupplierListFilterOption(),
@@ -18,6 +24,7 @@ data class SupplierListUiState(
     val supplierDefault: List<SupplierEntity> = emptyList(),
     val supplier: List<SupplierEntity> = emptyList(),
     val deleteState: Boolean? = null,
+    val downloadState: Boolean? = null,
     val statusState: Boolean? = null,
     val isActive: Boolean = false
 ) {

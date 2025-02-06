@@ -13,6 +13,7 @@ import com.project.learningkitsupplier.ui.screen.supplierlistscreen.components.A
 import com.project.learningkitsupplier.ui.screen.supplierlistscreen.components.DeleteSupplierAlert
 import com.project.learningkitsupplier.ui.screen.supplierlistscreen.components.DownloadSupplierDialogs
 import com.project.learningkitsupplier.ui.screen.supplierlistscreen.uistate.SupplierListUiState
+import com.project.learningkitsupplier.ui.screen.supplierlistscreen.viewmodel.SupplierListViewModel
 import com.project.libs.data.model.SupplierEntity
 import com.tagsamurai.tscomponents.model.Menu
 import com.tagsamurai.tscomponents.pagetitle.PageTitle
@@ -26,23 +27,18 @@ fun SupplierListTopBar(
     supplierListCallback: SupplierListCallback,
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit,
-    navController: NavController
+    navController: NavController,
+    viewModel: SupplierListViewModel
 ) {
 
-    var showSearch by remember { mutableStateOf(false) }
     var isActivate: Boolean? by remember { mutableStateOf(null) }
-    var showActionSheet by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showDownloadDialog by remember { mutableStateOf(false) }
-    var showUpdateStatus by remember { mutableStateOf(false) }
-    var showFilter by remember { mutableStateOf(false) }
     val tabList = listOf("List", "Supplier Activities")
     val listMenu = getListMenu(uiState = uiState)
 
     Column {
-        if (showSearch) {
+        if (uiState.showSearch) {
             SearchFieldTopAppBar(
-                onNavigateUp = { showSearch = false },
+                onNavigateUp = { viewModel.showSearch(false) },
                 onSearchConfirm = supplierListCallback.onSearch
             )
         } else {
@@ -51,11 +47,11 @@ fun SupplierListTopBar(
                 canNavigateBack = true,
                 onMenuAction = { menu ->
                     when (menu) {
-                        Menu.SEARCH -> showSearch = true
+                        Menu.SEARCH -> viewModel.showSearch(true)
                         Menu.SELECT_ALL, Menu.UNSELECT_ALL -> supplierListCallback.onToggleSelectAll()
-                        Menu.FILTER -> showFilter = true
-                        Menu.OTHER -> showActionSheet = true
-                        Menu.DOWNLOAD -> showDownloadDialog = true
+                        Menu.FILTER -> viewModel.showFilter(true)
+                        Menu.OTHER -> viewModel.showActionSheet(true)
+                        Menu.DOWNLOAD -> viewModel.showDownloadDialog(true)
                         Menu.LOG -> navController.navigate(NavigationRoute.ChangelogListScreen.route)
                         else -> Unit
                     }
@@ -72,7 +68,7 @@ fun SupplierListTopBar(
                     onTabChange = { index ->
                         onTabSelected(index)
                         if (index == 1) {
-                            showSearch = false
+                            viewModel.showSearch(false)
                         }
                     },
                     tabs = tabList,
@@ -85,51 +81,56 @@ fun SupplierListTopBar(
     val item: SupplierEntity = uiState.itemSelected.firstOrNull() ?: SupplierEntity()
 
     SupplierListActionSheet(
-        onDismissRequest = { state -> showActionSheet = state },
-        isShowSheet = showActionSheet,
+        onDismissRequest = { state -> viewModel.showActionSheet(state) },
+        isShowSheet = uiState.showActionSheet,
         item = item,
         uiState = uiState,
-        onDelete = { showDeleteDialog = true },
+        onDelete = { viewModel.showDeleteDialog(true) },
         onUpdateStatus = {
             isActivate = it
-            showUpdateStatus = true
+            viewModel.showUpdateStatus(true)
         },
         navController = navController,
         supplierListCallback = supplierListCallback,
-        onConfirmDismiss = { showActionSheet = false}
+        onConfirmDismiss = { viewModel.showActionSheet(false) }
     )
 
     DeleteSupplierAlert(
-        onDismissRequest = { state -> showDeleteDialog = state },
+        onDismissRequest = { state -> viewModel.showDeleteDialog(state) },
         supplier = uiState.itemSelected,
-        showDialog = showDeleteDialog,
-        supplierListCallback = supplierListCallback,
+        showDialog = uiState.showDeleteDialog,
+        onConfirm = {
+            supplierListCallback.deleteSupplier(uiState.itemSelected.map { it.id })
+            supplierListCallback.onClearSelectedItem()
+            viewModel.showActionSheet(false)
+        }
     )
 
     SupplierListFilterSheet(
-        onDismissRequest = { state -> showFilter = state },
+        onDismissRequest = { state -> viewModel.showFilter(state) },
         uiState = uiState,
-        showFilter = showFilter,
+        showFilter = uiState.showFilter,
         onApplyConfirm = supplierListCallback.onFilter
     )
 
     isActivate?.let {state ->
         ActivateInactiveSupply(
-            onDismissRequest = { state -> showUpdateStatus = state },
+            onDismissRequest = { state -> viewModel.showUpdateStatus(false) },
             supplier = uiState.itemSelected,
-            showDialog = showUpdateStatus,
+            showDialog = uiState.showUpdateStatus,
             onConfirm = {
                 supplierListCallback.onStatusUpdate(uiState.itemSelected.map { it.id }, !state)
                 supplierListCallback.onClearSelectedItem()
-                showActionSheet = false
+                viewModel.showActionSheet(false)
             },
             isActive = state,
         )
     }
 
     DownloadSupplierDialogs(
-        onDismissRequest = { state -> showDownloadDialog = state },
-        showDialog = showDownloadDialog
+        onDismissRequest = { state -> viewModel.showDownloadDialog(state) },
+        showDialog = uiState.showDownloadDialog,
+        viewModel = viewModel
     )
 }
 

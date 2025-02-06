@@ -1,6 +1,5 @@
 package com.project.learningkitsupplier.ui.screen.createsupplierscreen.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,6 +26,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,14 +43,14 @@ class CreateSupplierViewModel @Inject constructor(
 
     val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
 
-    fun init(){
+    fun init() {
         _uiState.value = _uiState.value.copy(
             supplierId = "",
             submitState = null,
             isEditForm = supplierId.isNotBlank()
         )
 
-        if(supplierId.isNotBlank()) {
+        if (supplierId.isNotBlank()) {
             getSupplierId(supplierId)
         }
         getFormOption()
@@ -62,7 +62,7 @@ class CreateSupplierViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isLoadingOverlay = true)
 
         getSupplierByIdUseCase(id).onEach { result ->
-            when(result) {
+            when (result) {
                 is Result.Success -> {
                     _uiState.update { currData ->
                         currData.copy(
@@ -124,53 +124,30 @@ class CreateSupplierViewModel @Inject constructor(
             formError = formError.copy(companyName = "Company name must not be empty")
         }
 
-        if (data.companyName.length > 30 ==  true){
-            formError = formError.copy(companyName = "Max. 30 characters")
-        }
-
-        if (data.items.any {it.itemName.isEmpty()}){
+        if (data.items.any { it.itemName.isEmpty() }) {
             formError = formError.copy(itemName = "You must pick an item name")
         }
 
-        if (data.items.any {it.sku.isEmpty()}){
+        if (data.items.any { it.sku.isEmpty() }) {
             formError = formError.copy(sku = "You must pick a SKU")
         }
 
-        if (data.zipCode?.let { it.length > 15 } == true) {
-            formError = formError.copy(zipCode = "Max. 15 characters")
-        }
-
-        if (data.companyLocation?.let { it.length > 120 } == true) {
-            formError = formError.copy(companyLocation = "Max. 120 characters")
-        }
-
-
-        if (data.picPhoneNumber?.let { it.length > 15 } == true) {
-            formError = formError.copy(picPhoneNumber = "Max. 15 characters")
-        }
-
-
-        if (data.companyPhoneNumber?.let { it.length > 15 } == true) {
-            formError = formError.copy(companyPhoneNumber = "Max. 15 characters")
-        }
-
-        if (data.picName?.let { it.length > 30 } == true) {
-            formError = formError.copy(picName = "Max. 30 characters")
-        }
-
         if (data.picEmail?.let { !emailPattern.toRegex().containsMatchIn(it) } == true) {
-            formError = formError.copy(picEmail = "Email format is incorrect")
+            formError = formError.copy(
+                picEmail = "Email format is incorrect"
+            )
         }
 
         _uiState.value = _uiState.value.copy(formError = formError)
+
         return !formError.hasError()
     }
 
     private fun submitForm() {
         val data = _uiState.value.formData
 
-        if (!formValidation(data)) return
 
+        if (!formValidation(data)) return
         _uiState.value = _uiState.value.copy(isLoadingOverlay = true)
 
         val body = CreateEditSupplierBodyRequest(
@@ -192,21 +169,25 @@ class CreateSupplierViewModel @Inject constructor(
             picEmail = data.picEmail
         )
 
-        Log.d("CreateSupplierViewModel", "data ${body.city} <> ${data.city}")
-
-        val domain = if(_uiState.value.isEditForm) {
+        val domain = if (_uiState.value.isEditForm) {
             editSupplierUseCase(_uiState.value.supplierId, body)
         } else {
             createSupplierUseCase(body)
         }
 
         domain.onEach { result ->
+            val isSuccess = result is Result.Success
             _uiState.update { currData ->
                 currData.copy(
                     isLoadingOverlay = false,
-                    submitState = result is Result.Success
+                    submitState = isSuccess
                 )
             }
+
+            if (isSuccess && _uiState.value.isStayOnForm) {
+                clearField()
+            }
+
         }.launchIn(viewModelScope)
     }
 
@@ -217,7 +198,7 @@ class CreateSupplierViewModel @Inject constructor(
         )
     }
 
-    fun updateAddSupplierItems(item: CreateSupplierFormData.Item){
+    fun updateAddSupplierItems(item: CreateSupplierFormData.Item) {
         val list = _uiState.value.formData.items
         _uiState.update { currData ->
             currData.copy(
@@ -234,7 +215,7 @@ class CreateSupplierViewModel @Inject constructor(
         }
     }
 
-    private fun getFormOption(){
+    private fun getFormOption() {
         _uiState.value = _uiState.value.copy(
             formOption = CreateSupplierFormOption(
                 itemName = generatedOptionDataString(getItemName()),
@@ -245,30 +226,40 @@ class CreateSupplierViewModel @Inject constructor(
             )
         )
     }
-    
-    private fun updateStayOnForm(){
-        _uiState.update { currData -> 
+
+    private fun updateStayOnForm() {
+        _uiState.update { currData ->
             currData.copy(isStayOnForm = !currData.isStayOnForm)
         }
     }
 
-    private fun addSupplierButton(){
+    private fun addSupplierButton() {
         _uiState.update { currData ->
             currData.copy(
                 formData = currData.formData.copy(
-                    items = currData.formData.items.plus(CreateSupplierFormData.Item(id = "${currData.formData.items.size + 1}"))
+                    items = currData.formData.items.plus(CreateSupplierFormData.Item(id = UUID.randomUUID().toString()))
                 )
             )
         }
     }
 
-    private fun onRemoveSupplierButton(item: CreateSupplierFormData.Item){
+    private fun onRemoveSupplierButton(item: CreateSupplierFormData.Item) {
         val list = uiState.value.formData.items
 
-        _uiState.value = _uiState.value.copy(
-            formData = _uiState.value.formData.copy(
-                items = list.filter { it.id != item.id }
+
+        if (list.size > 1) {
+            _uiState.value = _uiState.value.copy(
+                formData = _uiState.value.formData.copy(
+                    items = list.filter { it.id != item.id }
+                )
             )
+        }
+    }
+
+    private fun clearField() {
+        _uiState.value = _uiState.value.copy(
+            formData = CreateSupplierFormData(),
+            formError = CreateSupplierFormError(),
         )
     }
 }

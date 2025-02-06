@@ -104,6 +104,7 @@ class SupplierDetailViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
     
     private fun deleteSupplier(supplierId: List<String>) {
         _uiState.value = _uiState.value.copy(isLoadingOverlay = true)
