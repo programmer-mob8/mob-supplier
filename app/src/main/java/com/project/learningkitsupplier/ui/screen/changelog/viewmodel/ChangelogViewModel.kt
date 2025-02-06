@@ -28,18 +28,18 @@ class ChangelogViewModel @Inject constructor(
     private val changelogUseCase: GetChangelogUseCase,
     private val changelogOptionUseCase: getChangelogOptionUseCase,
     private val exportUtil: ExportUtil
-): ViewModel() {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ChangelogUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun init(){
+    fun init() {
         initChangelog()
         getFilterOption()
     }
 
     fun getCallback(): ChangelogListCallback {
         return ChangelogListCallback(
-            onRefresh = :: onRefresh,
+            onRefresh = ::onRefresh,
             onSearch = ::search,
             onFilter = ::updateFilter,
             onUpdateChangelog = ::onUpdateChangelog,
@@ -47,7 +47,7 @@ class ChangelogViewModel @Inject constructor(
         )
     }
 
-    private fun onRefresh(){
+    private fun onRefresh() {
         _uiState.value = _uiState.value.copy(
             filterData = ChangelogFilterData(),
             searchQuery = ""
@@ -56,7 +56,7 @@ class ChangelogViewModel @Inject constructor(
         init()
     }
 
-    fun initChangelog(){
+    fun initChangelog() {
         _uiState.value = _uiState.value.copy(isLoading = true)
 
         changelogUseCase(_uiState.value.queryParams).onEach { result ->
@@ -80,39 +80,56 @@ class ChangelogViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun search(query: String){
+    private fun search(query: String) {
         _uiState.value = _uiState.value.copy(searchQuery = query)
 
         initChangelog()
     }
 
-    private fun getFilterOption(){
+    private fun getFilterOption() {
+        _uiState.value = _uiState.value.copy(isLoadingGroup = true)
         changelogOptionUseCase().onEach { result ->
-            if(result is Result.Success){
+            if (result is Result.Success) {
                 _uiState.value = _uiState.value.copy(
                     filterOption = ChangelogFilterOption(
-                        actionOption = result.data.actionOption.map {OptionData(it.label, it.value)},
-                        fieldOption = result.data.fieldOption.map {OptionData(it.label, it.value)},
-                        modifiedBy = result.data.modifiedByOption.map {OptionData(it.label, it.value)}
+                        actionOption = result.data.actionOption.map {
+                            OptionData(
+                                it.label,
+                                it.value
+                            )
+                        },
+                        fieldOption = result.data.fieldOption.map {
+                            OptionData(
+                                it.label,
+                                it.value
+                            )
+                        },
+                        modifiedBy = result.data.modifiedByOption.map {
+                            OptionData(
+                                it.label,
+                                it.value
+                            )
+                        }
                     ),
                 )
+                _uiState.value = _uiState.value.copy(isLoadingGroup = false)
             }
         }.launchIn(viewModelScope)
     }
 
-    private fun updateFilter(data: ChangelogFilterData){
+    private fun updateFilter(data: ChangelogFilterData) {
         _uiState.value = _uiState.value.copy(filterData = data)
 
         initChangelog()
     }
 
-    private fun onUpdateChangelog(data: ChangelogEntity){
+    private fun onUpdateChangelog(data: ChangelogEntity) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             val changelogs = _uiState.value.changelog.toMutableList()
 
-            if(data.id.isBlank()){
+            if (data.id.isBlank()) {
                 changelogs.add(index = 0, element = data)
             } else {
                 changelogs.indexOfFirst { it.id == data.id }.apply { changelogs[this] = data }
@@ -147,7 +164,7 @@ class ChangelogViewModel @Inject constructor(
         }
     }
 
-    fun downloadList(fileName: String){
+    fun downloadList(fileName: String) {
         _uiState.update {
             it.copy(
                 isLoadingOverlay = true,

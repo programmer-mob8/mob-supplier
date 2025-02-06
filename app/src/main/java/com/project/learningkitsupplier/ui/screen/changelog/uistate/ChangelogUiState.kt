@@ -15,6 +15,7 @@ data class ChangelogUiState(
     val changelogDefault: List<ChangelogEntity> = emptyList(),
     val changelog: List<ChangelogEntity> = emptyList(),
     val isLoadingOverlay: Boolean = false,
+    var isLoadingGroup: Boolean = false,
     val isLoading: Boolean = false,
     val downloadState: Boolean? = null
 ) {

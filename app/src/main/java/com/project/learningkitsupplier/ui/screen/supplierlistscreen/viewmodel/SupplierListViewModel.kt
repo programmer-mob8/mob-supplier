@@ -125,6 +125,8 @@ class SupplierListViewModel @Inject constructor(
     }
 
     private fun getFilterOption(){
+        _uiState.value = _uiState.value.copy(isLoadingGroup = true)
+
         getFilterListOptionUseCase().onEach { result ->
             if (result is Result.Success){
                 _uiState.value = _uiState.value.copy(
@@ -136,6 +138,7 @@ class SupplierListViewModel @Inject constructor(
                         modifiedByOption = result.data.modifiedByOption.map { OptionData(it.label, it.value )},
                     )
                 )
+                _uiState.value = _uiState.value.copy(isLoadingGroup = false)
             }
         }.launchIn(viewModelScope)
     }
