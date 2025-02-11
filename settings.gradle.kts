@@ -15,6 +15,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+
     val path = "env.properties"
     val props = Properties()
     props.load(file(path).reader())

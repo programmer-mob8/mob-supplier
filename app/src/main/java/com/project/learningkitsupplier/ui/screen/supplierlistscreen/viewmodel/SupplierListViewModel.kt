@@ -102,8 +102,10 @@ class SupplierListViewModel @Inject constructor(
         _uiState.update { currData ->
             currData.copy(
                 itemSelected = if (currData.isAllSelected) {
+                    println("selectAll")
                     emptyList()
                 } else {
+                    println("unSelectAll")
                     currData.supplier
                 },
                 isAllSelected = !currData.isAllSelected
@@ -124,7 +126,7 @@ class SupplierListViewModel @Inject constructor(
         )
     }
 
-    private fun getFilterOption(){
+    fun getFilterOption(){
         _uiState.value = _uiState.value.copy(isLoadingGroup = true)
 
         getFilterListOptionUseCase().onEach { result ->
@@ -140,13 +142,14 @@ class SupplierListViewModel @Inject constructor(
                 )
                 _uiState.value = _uiState.value.copy(isLoadingGroup = false)
             }
+            _uiState.value = _uiState.value.copy(isLoadingGroup = false)
         }.launchIn(viewModelScope)
     }
 
     private fun updateFilter(data: SupplierListFilterData){
         _uiState.value = _uiState.value.copy(filterData = data)
 
-        initSupplier()
+        init()
     }
 
     private fun onUpdateSuppliers(data: SupplierEntity) {
@@ -216,8 +219,8 @@ class SupplierListViewModel @Inject constructor(
         domain.onEach { result ->
 
             if (result is Result.Success) {
-                delay(2000)
                 initSupplier()
+                _uiState.value = _uiState.value.copy(isLoadingOverlay = false)
             }
 
             _uiState.update { currData ->

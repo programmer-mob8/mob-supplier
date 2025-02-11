@@ -59,7 +59,7 @@ class SupplierDetailViewModel @Inject constructor(
         )
     }
 
-    private fun getSupplierId (id: String) {
+    fun getSupplierId (id: String) {
         _uiState.value = _uiState.value.copy(isLoadingOverlay = true)
 
         getSupplierByIdUseCase(id).onEach { result ->
@@ -95,11 +95,16 @@ class SupplierDetailViewModel @Inject constructor(
                             supplierId = id
                         )
                     }
-                    _uiState.value = _uiState.value.copy(isLoadingOverlay = false)
+                    _uiState.value = _uiState.value.copy(
+                        isLoadingOverlay = false
+                    )
                 }
 
                 is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(isLoadingOverlay = false)
+                    _uiState.value = _uiState.value.copy(
+                        isLoadingOverlay = false
+
+                    )
                 }
             }
         }.launchIn(viewModelScope)
@@ -113,7 +118,6 @@ class SupplierDetailViewModel @Inject constructor(
             supplierID = supplierId
         )
 
-        Log.d("TAG", "deleteSupplier: ")
         deleteSupplierUseCase(body).onEach {result ->
             _uiState.update { currData -> 
                 currData.copy(
@@ -124,7 +128,7 @@ class SupplierDetailViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun getFilterOption(){
+    fun getFilterOption(){
         _uiState.value = _uiState.value.copy(
             filterOption = SupplierDetailFilterOption(
                 transactionOption = generatedOptionDataString(getTransaction()),
@@ -133,7 +137,7 @@ class SupplierDetailViewModel @Inject constructor(
         )
     }
 
-    private fun getGroupOption() {
+    fun getGroupOption() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingGroup = true)
             delay(1000)

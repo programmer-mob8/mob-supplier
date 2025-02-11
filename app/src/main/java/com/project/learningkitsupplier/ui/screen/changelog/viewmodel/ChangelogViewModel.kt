@@ -8,13 +8,12 @@ import com.project.learningkitsupplier.module.changelog.ChangelogListCallback
 import com.project.learningkitsupplier.ui.screen.changelog.uistate.ChangelogUiState
 import com.project.libs.base.Result
 import com.project.libs.data.model.ChangelogEntity
+import com.project.libs.domain.supplier.GetChangelogOptionUseCase
 import com.project.libs.domain.supplier.GetChangelogUseCase
-import com.project.libs.domain.supplier.getChangelogOptionUseCase
 import com.tagsamurai.tscomponents.button.OptionData
 import com.tagsamurai.tscomponents.utils.ExportUtil
 import com.tagsamurai.tscomponents.utils.Utils.toDateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -26,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ChangelogViewModel @Inject constructor(
     private val changelogUseCase: GetChangelogUseCase,
-    private val changelogOptionUseCase: getChangelogOptionUseCase,
+    private val changelogOptionUseCase: GetChangelogOptionUseCase,
     private val exportUtil: ExportUtil
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ChangelogUiState())
@@ -67,8 +66,6 @@ class ChangelogViewModel @Inject constructor(
                         changelogDefault = result.data,
                         changelog = result.data
                     )
-
-                    getFilterOption()
                 }
 
                 is Result.Error -> {
@@ -83,10 +80,10 @@ class ChangelogViewModel @Inject constructor(
     private fun search(query: String) {
         _uiState.value = _uiState.value.copy(searchQuery = query)
 
-        initChangelog()
+        init()
     }
 
-    private fun getFilterOption() {
+    fun getFilterOption() {
         _uiState.value = _uiState.value.copy(isLoadingGroup = true)
         changelogOptionUseCase().onEach { result ->
             if (result is Result.Success) {
@@ -120,7 +117,7 @@ class ChangelogViewModel @Inject constructor(
     private fun updateFilter(data: ChangelogFilterData) {
         _uiState.value = _uiState.value.copy(filterData = data)
 
-        initChangelog()
+        init()
     }
 
     private fun onUpdateChangelog(data: ChangelogEntity) {
@@ -135,7 +132,6 @@ class ChangelogViewModel @Inject constructor(
                 changelogs.indexOfFirst { it.id == data.id }.apply { changelogs[this] = data }
             }
 
-            delay(1000)
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
                 changelog = changelogs,
@@ -144,7 +140,7 @@ class ChangelogViewModel @Inject constructor(
         }
     }
 
-    private suspend fun parseDownloadContent(
+    suspend fun parseDownloadContent(
         data: List<ChangelogEntity>
     ): List<Map<String, String>> {
         return data.map { d ->

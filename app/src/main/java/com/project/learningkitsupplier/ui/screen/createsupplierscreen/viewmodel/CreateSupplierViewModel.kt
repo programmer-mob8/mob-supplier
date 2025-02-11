@@ -54,11 +54,9 @@ class CreateSupplierViewModel @Inject constructor(
             getSupplierId(supplierId)
         }
         getFormOption()
-
-
     }
 
-    private fun getSupplierId(id: String) {
+    fun getSupplierId(id: String) {
         _uiState.value = _uiState.value.copy(isLoadingOverlay = true)
 
         getSupplierByIdUseCase(id).onEach { result ->
@@ -117,7 +115,7 @@ class CreateSupplierViewModel @Inject constructor(
         )
     }
 
-    private fun formValidation(data: CreateSupplierFormData): Boolean {
+    fun formValidation(data: CreateSupplierFormData): Boolean {
         var formError = CreateSupplierFormError()
 
         if (data.companyName.isEmpty()) {
@@ -198,7 +196,7 @@ class CreateSupplierViewModel @Inject constructor(
         )
     }
 
-    fun updateAddSupplierItems(item: CreateSupplierFormData.Item) {
+    private fun updateAddSupplierItems(item: CreateSupplierFormData.Item) {
         val list = _uiState.value.formData.items
         _uiState.update { currData ->
             currData.copy(
@@ -215,7 +213,7 @@ class CreateSupplierViewModel @Inject constructor(
         }
     }
 
-    private fun getFormOption() {
+    fun getFormOption() {
         _uiState.value = _uiState.value.copy(
             formOption = CreateSupplierFormOption(
                 itemName = generatedOptionDataString(getItemName()),
@@ -256,7 +254,7 @@ class CreateSupplierViewModel @Inject constructor(
         }
     }
 
-    private fun clearField() {
+    fun clearField() {
         _uiState.value = _uiState.value.copy(
             formData = CreateSupplierFormData(),
             formError = CreateSupplierFormError(),
